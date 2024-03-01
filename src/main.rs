@@ -1,5 +1,7 @@
 // Uncomment this block to pass the first stage
-use std::net::TcpListener;
+use std::{io::Write, net::TcpListener};
+
+use bytes::Bytes;
 
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -11,8 +13,10 @@ fn main() {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(_stream) => {
-                println!("accepted new connection");
+            Ok(mut stream) => {
+                let response = Bytes::from("HTTP/1.1 200 OK\r\n\r\n");
+                let written_bytes = stream.write_all(&response);
+                println!("written bytes: {:?}", written_bytes);
             }
             Err(e) => {
                 println!("error: {}", e);
