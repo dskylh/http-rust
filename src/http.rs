@@ -5,6 +5,23 @@ use std::{
 
 use bytes::Bytes;
 
+const NOT_FOUND: Bytes = Bytes::from_static(b"HTTP/1.1 404 Not Found\r\n\r\n");
+const OK: Bytes = Bytes::from_static(b"HTTP/1.1 200 OK\r\n\r\n");
+
+pub enum HTTPResponse {
+    OK,
+    NotFound,
+}
+
+impl HTTPResponse {
+    pub fn to_bytes(&self) -> Bytes {
+        match self {
+            HTTPResponse::OK => OK.clone(),
+            HTTPResponse::NotFound => NOT_FOUND.clone(),
+        }
+    }
+}
+
 pub enum HTTPMethod {
     GET,
     POST,
@@ -73,10 +90,12 @@ pub fn handle_connection(stream: &mut TcpStream) {
         HTTPMethod::GET => {
             print!("{}", request.path);
             if request.path == "/" {
-                let _response = Bytes::from("HTTP/1.1 200 OK\r\n\r\n");
+                let response = HTTPResponse::OK.to_bytes();
+                let _ = stream.write_all(&response);
+            } else {
+                let response = HTTPResponse::NotFound.to_bytes();
+                let _ = stream.write_all(&response);
             }
-            let response = Bytes::from("HTTP/1.1 404 Not Found\r\n\r\n");
-            let _ = stream.write_all(&response);
         }
         _ => {
             let response = Bytes::from("HTTP/1.1 405 Method Not Allowed\r\n\r\n");

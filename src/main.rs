@@ -1,11 +1,7 @@
 // Uncomment this block to pass the first stage
-use std::{
-    io::{BufRead, BufReader, Read, Write},
-    net::TcpListener,
-};
+use std::net::TcpListener;
 
-use bytes::{Bytes, BytesMut};
-use http_server_starter_rust::http::{handle_connection, HTTPRequest};
+use http_server_starter_rust::http::handle_connection;
 
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -18,6 +14,7 @@ fn main() {
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
+                println!("Going to Handle Connection.");
                 handle_connection(&mut stream);
             }
             Err(e) => {
