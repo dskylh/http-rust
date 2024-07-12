@@ -205,7 +205,7 @@ pub fn handle_connection(mut stream: TcpStream) {
                     Some(content) => {
                         let response = HTTPResponse {
                             status_code: StatusCode::OK,
-                            content_type: ContentType::PLAIN,
+                            content_type: ContentType::OCTET_STREAM,
                             body: Bytes::from(content),
                         };
                         let _ = stream.write_all(&response.to_bytes());
