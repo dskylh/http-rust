@@ -13,6 +13,7 @@ pub enum ContentType {
     JSON,
     XML,
     PLAIN,
+    OCTET_STREAM,
 }
 
 impl ContentType {
@@ -22,6 +23,7 @@ impl ContentType {
             ContentType::JSON => "application/json".to_string(),
             ContentType::XML => "application/xml".to_string(),
             ContentType::PLAIN => "text/plain".to_string(),
+            ContentType::OCTET_STREAM => "application/octet-stream".to_string(),
         }
     }
 }
@@ -190,6 +192,27 @@ pub fn handle_connection(mut stream: TcpStream) {
                     body: Bytes::from(user_agent),
                 };
                 let _ = stream.write_all(&response.to_bytes());
+            } else if request.paths[1] == "files" {
+                let file_path = format!("{}", request.paths[2]);
+                let content = crate::utils::read_file(&file_path);
+                match content {
+                    Some(content) => {
+                        let response = HTTPResponse {
+                            status_code: StatusCode::OK,
+                            content_type: ContentType::PLAIN,
+                            body: Bytes::from(content),
+                        };
+                        let _ = stream.write_all(&response.to_bytes());
+                    }
+                    None => {
+                        let response = HTTPResponse {
+                            status_code: StatusCode::NotFound,
+                            content_type: ContentType::PLAIN,
+                            body: Bytes::from(""),
+                        };
+                        let _ = stream.write_all(&response.to_bytes());
+                    }
+                }
             } else {
                 // return 404 Not Found HTTP Response
                 let response = HTTPResponse {
