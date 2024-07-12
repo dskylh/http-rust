@@ -125,7 +125,7 @@ impl HTTPRequest {
         let headers = http_request[1..]
             .iter()
             .map(|line| {
-                let header = line.split(":").collect::<Vec<&str>>();
+                let header = line.split(": ").collect::<Vec<&str>>();
                 (header[0].to_string(), header[1].to_string())
             })
             .collect::<Vec<(String, String)>>();
@@ -148,6 +148,15 @@ impl HTTPRequest {
         }
         request.push_str("\r\n");
         Bytes::from(request)
+    }
+
+    pub fn get_headers(&self, key: &str) -> Option<String> {
+        for (k, v) in &self.headers {
+            if k == key {
+                return Some(v.clone());
+            }
+        }
+        None
     }
 }
 
@@ -172,6 +181,14 @@ pub fn handle_connection(stream: &mut TcpStream) {
                     body: Bytes::from(""),
                 };
 
+                let _ = stream.write_all(&response.to_bytes());
+            } else if request.paths[1] == "user-agent" {
+                let user_agent = request.get_headers("User-Agent").unwrap();
+                let response = HTTPResponse {
+                    status_code: StatusCode::OK,
+                    content_type: ContentType::PLAIN,
+                    body: Bytes::from(user_agent),
+                };
                 let _ = stream.write_all(&response.to_bytes());
             } else {
                 // return 404 Not Found HTTP Response
