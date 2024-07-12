@@ -155,6 +155,8 @@ pub fn handle_connection(stream: &mut TcpStream) {
     let request = HTTPRequest::new(stream);
     match request.method {
         HTTPMethod::GET => {
+            // print paths
+            println!("{:?}", request.paths);
             if request.paths[1].trim() == "echo" {
                 let response = HTTPResponse {
                     status_code: StatusCode::OK,
@@ -166,6 +168,15 @@ pub fn handle_connection(stream: &mut TcpStream) {
                 // retrun empty OK HTTP Response
                 let response = HTTPResponse {
                     status_code: StatusCode::OK,
+                    content_type: ContentType::PLAIN,
+                    body: Bytes::from(""),
+                };
+
+                let _ = stream.write_all(&response.to_bytes());
+            } else {
+                // return 404 Not Found HTTP Response
+                let response = HTTPResponse {
+                    status_code: StatusCode::NotFound,
                     content_type: ContentType::PLAIN,
                     body: Bytes::from(""),
                 };
