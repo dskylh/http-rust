@@ -1,4 +1,5 @@
 use std::{
+    env,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     str::from_utf8,
@@ -193,8 +194,13 @@ pub fn handle_connection(mut stream: TcpStream) {
                 };
                 let _ = stream.write_all(&response.to_bytes());
             } else if request.paths[1] == "files" {
-                let file_path = format!("{}", request.paths[2]);
-                let content = crate::utils::read_file(&file_path);
+                let file_name = format!("/{}", request.paths[2]);
+                let env_args: Vec<String> = env::args().collect();
+
+                let mut dir = env_args[2].clone();
+
+                dir.push_str(&file_name);
+                let content = crate::utils::read_file(&dir);
                 match content {
                     Some(content) => {
                         let response = HTTPResponse {
