@@ -112,7 +112,7 @@ pub struct HTTPRequest {
 }
 
 impl HTTPRequest {
-    pub fn new(stream: &mut TcpStream) -> HTTPRequest {
+    pub fn new(stream: &TcpStream) -> HTTPRequest {
         let reader = BufReader::new(stream);
         let http_request: Vec<String> = reader
             .lines()
@@ -160,8 +160,8 @@ impl HTTPRequest {
     }
 }
 
-pub fn handle_connection(stream: &mut TcpStream) {
-    let request = HTTPRequest::new(stream);
+pub fn handle_connection(mut stream: TcpStream) {
+    let request = HTTPRequest::new(&stream);
     match request.method {
         HTTPMethod::GET => {
             // print paths

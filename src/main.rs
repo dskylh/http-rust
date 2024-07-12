@@ -13,9 +13,9 @@ fn main() {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(mut stream) => {
+            Ok(stream) => {
                 println!("Going to Handle Connection.");
-                handle_connection(&mut stream);
+                std::thread::spawn(|| handle_connection(stream));
             }
             Err(e) => {
                 println!("error: {}", e);
